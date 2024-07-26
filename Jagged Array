@@ -1,0 +1,137 @@
+#include <iostream>
+#include <fstream>
+
+using namespace std;
+
+int countLines(ifstream& f);
+void allocateRowsOf2DArray(char**& arr, int r);
+void allocateColumnsOf2DArray(char** arr, int r, ifstream& f, int* c);
+void read2DArrayFromFile(char** arr, int r, int* c, ifstream& f);
+void display2DArray(char** arr, int r, int* c);
+void findSubstringInRows(char** arr, int r, int* c, const char* substring);
+
+int main() {
+    ifstream in("input0.txt");
+    if (!in) {
+        cout << "Error in opening file!!!" << endl;
+        return 1;
+    }
+
+    int rows = countLines(in);
+    in.close();
+
+    char** arr = nullptr;
+    allocateRowsOf2DArray(arr, rows);
+
+    in.open("input0.txt");
+    int* noOfCols = new int[rows];
+    allocateColumnsOf2DArray(arr, rows, in, noOfCols);
+    in.close();
+
+    in.open("input0.txt");
+    read2DArrayFromFile(arr, rows, noOfCols, in);
+    in.close();
+
+    cout << "Printing array content" << endl;
+    display2DArray(arr, rows, noOfCols);
+
+    // Prompt user for substring input
+    char substring[100];
+    cout << "Enter substring to search: ";
+    cin.getline(substring, 100);
+
+    // Find and display substring indices in each row
+    findSubstringInRows(arr, rows, noOfCols, substring);
+
+    // Clean up memory
+    delete[] noOfCols;
+    for (int i = 0; i < rows; i++)
+        delete[] arr[i];
+    delete[] arr;
+
+    return 0;
+}
+
+void findSubstringInRows(char** arr, int r, int* c, const char* substring) {
+    int subLen = 0;
+    while (substring[subLen] != '\0') {
+        subLen++;
+    }
+
+    for (int i = 0; i < r; i++) {
+        char* rowString = arr[i];
+        int rowLen = c[i];
+
+        // Iterate through the row string to find substring
+        int startIdx = -1;
+        int endIdx = -1;
+        for (int j = 0; j <= rowLen - subLen; j++) {
+            bool found = true;
+            for (int k = 0; k < subLen; k++) {
+                if (rowString[j + k] != substring[k]) {
+                    found = false;
+                    break;
+                }
+            }
+
+            if (found) {
+                startIdx = j;
+                endIdx = j + subLen - 1;
+                cout << "Row " << i << " starting index: " << startIdx << " and ending index: " << endIdx << endl;
+            }
+        }
+    }
+}
+
+void read2DArrayFromFile(char** arr, int r, int* c, ifstream& f) {
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c[i]; j++) {
+            f >> arr[i][j];
+        }
+    }
+}
+
+void display2DArray(char** arr, int r, int* c) {
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c[i]; j++) {
+            cout << arr[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+void allocateColumnsOf2DArray(char** arr, int r, ifstream& f, int* c) {
+    if (f) {
+        char temp[1000];
+        for (int i = 0; i < r; i++) {
+            f.getline(temp, 1000);
+            int colCount = 0;
+            for (int j = 0; temp[j] != '\0'; j++) {
+                if (temp[j] != ' ') {
+                    colCount++;
+                }
+            }
+            arr[i] = new char[colCount];
+            c[i] = colCount;
+        }
+    } else {
+        cout << "Error in file opening!!!" << endl;
+    }
+}
+
+void allocateRowsOf2DArray(char**& arr, int r) {
+    arr = new char*[r];
+}
+
+int countLines(ifstream& f) {
+    int lines = 0;
+    if (f) {
+        char temp[1000];
+        while (f.getline(temp, 1000)) {
+            lines++;
+        }
+    } else {
+        cout << "Error in opening file!!!" << endl;
+    }
+    return lines;
+}
