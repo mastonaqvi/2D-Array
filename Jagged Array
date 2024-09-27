@@ -13,7 +13,7 @@ void findSubstringInRows(char** arr, int r, int* c, const char* substring);
 int main() {
     ifstream in("input0.txt");
     if (!in) {
-        cout << "Error in opening file!!!" << endl;
+        cout << "Error in opening File" << endl;
         return 1;
     }
 
